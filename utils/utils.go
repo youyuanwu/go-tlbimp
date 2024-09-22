@@ -81,8 +81,8 @@ func StructSize(fieldSizes ...SizeInfo) SizeInfo {
 }
 
 func BuildGuidExpr(sGuid string) string {
-	expr := "syscall.GUID{0x" + sGuid[:8] +
-		", 0x" + sGuid[9:13] + ", 0x" + sGuid[14:18] + ", \n\t[8]byte{"
+	expr := "syscall.GUID{Data1: 0x" + sGuid[:8] +
+		", Data2: 0x" + sGuid[9:13] + ", Data3: 0x" + sGuid[14:18] + ", \n\tData4: [8]byte{"
 	sGuid = strings.Replace(sGuid[19:], "-", "", 1)
 	for n := 0; n < 16; n += 2 {
 		if n > 0 {

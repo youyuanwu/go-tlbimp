@@ -2,14 +2,15 @@ package codegen
 
 import (
 	"fmt"
-	"github.com/zzl/go-tlbimp/typelib"
-	"github.com/zzl/go-tlbimp/utils"
-	"github.com/zzl/go-win32api/v2/win32"
 	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/zzl/go-tlbimp/typelib"
+	"github.com/zzl/go-tlbimp/utils"
+	"github.com/zzl/go-win32api/v2/win32"
 )
 
 type Generator struct {
@@ -1336,10 +1337,21 @@ func (this *Generator) genHandlerInterface(ti *typelib.TypeInfo) {
 			code += goParamType
 		}
 
-		code += ") uintptr {\n"
+		noRet := this.mapOleTypeToGoType(f.ReturnType, true) == ""
+
+		if noRet {
+			code += ") {\n"
+		} else {
+			code += ") uintptr {\n"
+		}
 
 		//
-		code += "\treturn (uintptr)(this.impl()." + fName + "("
+		if noRet {
+			code += "\t(this.impl()." + fName + "("
+		} else {
+			code += "\treturn (uintptr)(this.impl()." + fName + "("
+		}
+
 		for m, p := range f.Params {
 			pName := pNames[m]
 			if m > 0 {
@@ -1589,7 +1601,7 @@ func (this *Generator) genReturnCode(typ *typelib.VarType, goType string) string
 	case "bool":
 		castExpr = "ret != 0"
 	case "string":
-		castExpr = "win32.BstrToStrAndFree(win32.BSTR(unsafe.pointer(ret))"
+		castExpr = "win32.BstrToStrAndFree(win32.BSTR(unsafe.Pointer(ret)))"
 	case "time.Time":
 		castExpr = "ole.Date(ret).ToGoTime()"
 	case "com.Error":
